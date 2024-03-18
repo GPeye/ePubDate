@@ -22,7 +22,6 @@ VPATH += src
 
 # List C source files here
 SRC = src/main.c \
-	src/myfiles.c \
 	src/unzip/inffast.c \
 	src/unzip/inflate.c \
 	src/unzip/inftrees.c \

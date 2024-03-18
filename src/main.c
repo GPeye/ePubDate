@@ -10,7 +10,6 @@
 #include <stdlib.h>
 
 #include "pd_api.h"
-#include "myfiles.h"
 #include "unzip.h"
 
 static int update(void *userdata);
@@ -55,8 +54,7 @@ void myClose(void *p)
 int32_t myRead(void *p, uint8_t *buffer, int32_t length)
 {
 	ZIPFILE *pzf = (ZIPFILE *)p;
-	if (!pzf)
-		pd->system->logToConsole("read no pzf");
+	if (!pzf) return 0;
 	SDFile *f = (SDFile *)pzf->fHandle;
 	//pd->system->logToConsole("File read on handle: %d", f);
 	//   return f->read(buffer, length);
@@ -66,8 +64,7 @@ int32_t myRead(void *p, uint8_t *buffer, int32_t length)
 int32_t mySeek(void *p, int32_t position, int iType)
 {
 	ZIPFILE *pzf = (ZIPFILE *)p;
-	if (!pzf)
-		pd->system->logToConsole("seek no pzf");
+	if (!pzf) return 0;
 	SDFile *f = (SDFile *)pzf->fHandle;
 	//pd->system->logToConsole("file seek on %d", f);
 	return pd->file->seek(f, position, iType);
@@ -92,7 +89,7 @@ int eventHandler(PlaydateAPI *playdate, PDSystemEvent event, uint32_t arg)
 		// listFiles(pd);
 		int rc = 0;
 		ZIPFILE zpf;
-		unzFile zHandle = unzOpen("pg2701.epub", NULL, 0, &zpf, myOpen, myRead, mySeek, myClose);
+		unzFile zHandle = unzOpen("pg2701.epub", &zpf, myOpen, myRead, mySeek, myClose);
 
 		if (zHandle == NULL)
 		{

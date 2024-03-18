@@ -39,9 +39,9 @@ file(GLOB UNZIP_GLOB
 include_directories("src/unzip")
 
 if (TOOLCHAIN STREQUAL "armgcc")
-	add_executable(${PLAYDATE_GAME_DEVICE} src/main.c src/myfiles.c ${UNZIP_GLOB})
+	add_executable(${PLAYDATE_GAME_DEVICE} src/main.c ${UNZIP_GLOB})
 else()
-	add_library(${PLAYDATE_GAME_NAME} SHARED src/main.c src/myfiles.c ${UNZIP_GLOB})
+	add_library(${PLAYDATE_GAME_NAME} SHARED src/main.c ${UNZIP_GLOB})
 endif()
 
 include(${SDK}/C_API/buildsupport/playdate_game.cmake)

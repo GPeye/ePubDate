@@ -12,18 +12,7 @@
 #  include <string.h>
 #  include <stdlib.h>
 #endif
-#ifdef NO_ERRNO_H
-    extern int errno;
-#else
-#   include <errno.h>
-#endif
-
-
-#ifndef local
-#  define local static
-#endif
-/* compile with -Dlocal if your debugger can't find static symbols */
-
+#include <errno.h>
 
 
 #if !defined(unix) && !defined(CASESENSITIVITYDEFAULT_YES) && \
@@ -31,32 +20,8 @@
 #define CASESENSITIVITYDEFAULT_NO
 #endif
 
-
-// Not Needed
-//#ifndef ALLOC
-//# define ALLOC(size) (malloc(size))
-//#endif
-//#ifndef TRYFREE
-//# define TRYFREE(p) {if (p) free(p);}
-//#endif
-
 #define SIZECENTRALDIRITEM (0x2e)
 #define SIZEZIPLOCALHEADER (0x1e)
-
-
-/* I've found an old Unix (a SunOS 4.1.3_U1) without all SEEK_* defined.... */
-
-#ifndef SEEK_CUR
-#define SEEK_CUR    1
-#endif
-
-#ifndef SEEK_END
-#define SEEK_END    2
-#endif
-
-#ifndef SEEK_SET
-#define SEEK_SET    0
-#endif
 
 const char unz_copyright[] =
    " unzip 0.15 Copyright 1998 Gilles Vollant ";
@@ -273,55 +238,11 @@ local uLong unzlocal_SearchCentralDir(ZIPFILE *pzf)
 	return uPosFound;
 } /* unzlocal_SearchCentralDir() */
 
-static int32_t readMem(void *p, uint8_t *pBuf, int32_t iLen)
-{
-    int32_t iBytesRead;
-    ZIPFILE *pFile = (ZIPFILE *)p;
-    iBytesRead = iLen;
-    if ((pFile->iSize - pFile->iPos) < iLen)
-       iBytesRead = pFile->iSize - pFile->iPos;
-    if (iBytesRead <= 0)
-       return 0;
-    memcpy(pBuf, &pFile->pData[pFile->iPos], iBytesRead);
-    pFile->iPos += iBytesRead;
-    return iBytesRead;
-} /* readMem() */
-
-static int32_t seekMem(void *p, int32_t iPosition, int iType)
-{
-    ZIPFILE *pFile = (ZIPFILE *)p;
-    switch (iType) {
-        case SEEK_CUR: // relative from current position
-            iPosition += pFile->iPos;
-            break;
-        case SEEK_END: // relative from end of file
-            if (iPosition > 0) iPosition = 0; // can't go past end
-            else iPosition += pFile->iSize;
-            break;
-        case SEEK_SET: // absolute offset, just use it
-            break;
-    }
-    if (iPosition < 0) iPosition = 0;
-    else if (iPosition >= pFile->iSize) iPosition = pFile->iSize-1;
-    pFile->iPos = iPosition;
-    return iPosition;
-} /* seekMem() */
-
-/*
-  Open a Zip file. path contain the full pathname (by example,
-     on a Windows NT computer "c:\\test\\zlib109.zip" or on an Unix computer
-	 "zlib/zlib109.zip".
-	 If the zipfile cannot be opened (file don't exist or in not valid), the
-	   return value is NULL.
-     Else, the return value is a unzFile Handle, usable with other function
-	   of this unzip package.
-*/
-extern unzFile ZEXPORT unzOpen (const char *path, uint8_t *pData, uint32_t u32DataSize, ZIPFILE *pzf, ZIP_OPEN_CALLBACK *pfnOpen, ZIP_READ_CALLBACK *pfnRead, ZIP_SEEK_CALLBACK *pfnSeek, ZIP_CLOSE_CALLBACK *pfnClose)
+extern unzFile ZEXPORT unzOpen (const char *path, ZIPFILE *pzf, ZIP_OPEN_CALLBACK *pfnOpen, ZIP_READ_CALLBACK *pfnRead, ZIP_SEEK_CALLBACK *pfnSeek, ZIP_CLOSE_CALLBACK *pfnClose)
 {
 	unz_s us;
 	unz_s *s;
 	uLong central_pos,uL;
-//	FILE * fin = NULL;
 
 	uLong number_disk;          /* number of the current dist, used for 
 								   spaning ZIP, unsupported, always 0*/
@@ -336,32 +257,16 @@ extern unzFile ZEXPORT unzOpen (const char *path, uint8_t *pData, uint32_t u32Da
     if (unz_copyright[0]!=' ')
         return NULL;
     memset(pzf, 0, sizeof(ZIPFILE));
-    if (path == NULL && pData != NULL)  {
-        // memory file
-        pzf->pfnRead = readMem;
-        pzf->pfnSeek = seekMem;
-        pzf->pfnClose = NULL;
-        pzf->iPos = 0;
-        pzf->iSize = u32DataSize;
-        pzf->pData = pData;
-    } else {
-        pzf->pfnClose = pfnClose;
-        pzf->pfnRead = pfnRead;
-        pzf->pfnSeek = pfnSeek;
-        pzf->fHandle = (*pfnOpen)(path, &pzf->iSize);
-//        fin = (FILE *)pzf->fHandle;
-    }
-//    fin=fopen(path,"rb");
-//	if (fin==NULL)
-//		return NULL;
+	pzf->pfnClose = pfnClose;
+	pzf->pfnRead = pfnRead;
+	pzf->pfnSeek = pfnSeek;
+	pzf->fHandle = (*pfnOpen)(path, &pzf->iSize);
 
 	central_pos = unzlocal_SearchCentralDir(pzf);
 	if (central_pos==0)
 		err=UNZ_ERRNO;
 
     (*pzf->pfnSeek)(pzf, (int32_t)central_pos, SEEK_SET);
-//	if (fseek(fin,central_pos,SEEK_SET)!=0)
-//		err=UNZ_ERRNO;
 
 	/* the signature, already checked */
 	if (unzlocal_getLong(pzf,&uL)!=UNZ_OK)
