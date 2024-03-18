@@ -26,7 +26,8 @@ SRC = src/main.c \
 	src/unzip/inflate.c \
 	src/unzip/inftrees.c \
 	src/unzip/unzip.c \
-	src/unzip/zutil.c 
+	src/unzip/zutil.c \
+	src/epub/epub.c
 
 # List all user directories here
 UINCDIR = 

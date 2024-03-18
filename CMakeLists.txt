@@ -35,13 +35,18 @@ file(GLOB UNZIP_GLOB
      "src/unzip/*.h"
 )
 
+file(GLOB EPUB_GLOB
+     "src/epub/*.c"
+     "src/epub/*.h"
+)
 
 include_directories("src/unzip")
+include_directories("src/epub")
 
 if (TOOLCHAIN STREQUAL "armgcc")
-	add_executable(${PLAYDATE_GAME_DEVICE} src/main.c ${UNZIP_GLOB})
+	add_executable(${PLAYDATE_GAME_DEVICE} src/main.c ${UNZIP_GLOB} ${EPUB_GLOB})
 else()
-	add_library(${PLAYDATE_GAME_NAME} SHARED src/main.c ${UNZIP_GLOB})
+	add_library(${PLAYDATE_GAME_NAME} SHARED src/main.c ${UNZIP_GLOB} ${EPUB_GLOB})
 endif()
 
 include(${SDK}/C_API/buildsupport/playdate_game.cmake)
