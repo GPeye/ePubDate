@@ -1,7 +1,7 @@
 HEAP_SIZE      = 8388208
 STACK_SIZE     = 61800
 
-PRODUCT = HelloWorld.pdx
+PRODUCT = ePubDate.pdx
 
 # Locate the SDK
 SDK = ${PLAYDATE_SDK_PATH}
@@ -18,7 +18,7 @@ endif
 # ex: VPATH += src1:src2
 ######
 
-VPATH += src
+VPATH += src:src/epub:src/unzip
 
 # List C source files here
 SRC = src/main.c \
@@ -27,10 +27,12 @@ SRC = src/main.c \
 	src/unzip/inftrees.c \
 	src/unzip/unzip.c \
 	src/unzip/zutil.c \
-	src/epub/epub.c
+	src/unzip/adler32.c \
+	src/unzip/crc32.c \
+	src/epub/epub.c 
 
 # List all user directories here
-UINCDIR = 
+UINCDIR = src/unzip:src/epub
 
 # List user asm files
 UASRC = 

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include "pd_api.h"
-#include "unzip.h"
 #include "epub.h"
 
 static int update(void *userdata);
@@ -15,6 +14,10 @@ __declspec(dllexport)
 
 	static PlaydateAPI *pd = NULL;
 
+	size_t top_of_stack;
+
+	int32_t thing[32768];
+
 int eventHandler(PlaydateAPI *playdate, PDSystemEvent event, uint32_t arg)
 {
 	(void)arg; // arg is currently only used for event = kEventKeyPressed
@@ -24,6 +27,7 @@ int eventHandler(PlaydateAPI *playdate, PDSystemEvent event, uint32_t arg)
 		pd = playdate;
 		const char *err;
 		font = pd->graphics->loadFont(fontpath, &err);
+		//pd->display->setRefreshRate(0);
 
 		if (font == NULL)
 			pd->system->error("%s:%i Couldn't load font %s: %s", __FILE__, __LINE__, fontpath, err);
@@ -33,6 +37,8 @@ int eventHandler(PlaydateAPI *playdate, PDSystemEvent event, uint32_t arg)
 
 		InitEpub(playdate);
 		readStuff();
+
+
 	}
 
 	return 0;
@@ -50,10 +56,8 @@ static int update(void *userdata)
 {
 	// unzip()
 	PlaydateAPI *pd = userdata;
-
-	pd->graphics->clear(kColorWhite);
-	pd->graphics->setFont(font);
-	pd->graphics->drawText("Hello World!", strlen("Hello World!"), kASCIIEncoding, x, y);
+	
+	pd->graphics->fillRect(x, y,TEXT_WIDTH, TEXT_HEIGHT, kColorWhite);
 
 	x += dx;
 	y += dy;
@@ -63,6 +67,11 @@ static int update(void *userdata)
 
 	if (y < 0 || y > LCD_ROWS - TEXT_HEIGHT)
 		dy = -dy;
+
+	//pd->graphics->clear(kColorWhite);
+	pd->graphics->setFont(font);
+	pd->graphics->drawText("Hello World!", strlen("Hello World!"), kASCIIEncoding, x, y);
+
 
 	pd->system->drawFPS(0, 0);
 

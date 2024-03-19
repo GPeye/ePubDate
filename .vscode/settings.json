@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "epub.h": "c"
+        "epub.h": "c",
+        "stdint.h": "c",
+        "inflate.h": "c"
     }
 }

@@ -1,5 +1,5 @@
-name=HelloWorldC
-author=Dave Hayden
-description=A small demo of the C API
-bundleID=com.panic.hellocapi
+name=ePubDate
+author=Mike
+description=ePub ebook reader for the PlayDate
+bundleID=com.panic.epubdate
 imagePath=

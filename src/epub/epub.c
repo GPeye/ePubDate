@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "epub.h"
+#include "unzip.h"
 
 SEpub Epub;
 
@@ -53,9 +54,12 @@ int32_t mySeek(void *p, int32_t position, int iType)
 void readStuff()
 {
     // listFiles(pd);
+    Epub.pd->system->logToConsole("reading stuff");
     int rc = 0;
     ZIPFILE zpf;
-    unzFile zHandle = unzOpen("pg2701.epub", &zpf, myOpen, myRead, mySeek, myClose);
+    Epub.pd->system->logToConsole("about to open");
+    unzFile zHandle = unzOpen("pg2701.epub", NULL, 0, &zpf, myOpen, myRead, mySeek, myClose);
+    //unzFile zHandle = unzOpen("testfile.zip", NULL, 0, &zpf, myOpen, myRead, mySeek, myClose);
 
     if (zHandle == NULL)
     {
@@ -76,15 +80,16 @@ void readStuff()
         Epub.pd->system->logToConsole("bad comment %d", rc);
     }
 
-    // rc = unzLocateFile(zHandle, "META-INF/container.xml", 2);
-    // rc = unzLocateFile(zHandle, "OEBPS/content.opf", 2);
+    // // rc = unzLocateFile(zHandle, "META-INF/container.xml", 2);
+    // // rc = unzLocateFile(zHandle, "OEBPS/content.opf", 2);
     rc = unzLocateFile(zHandle, "OEBPS/3484760691463238453_2701-h-1.htm.html", 2);
+    //rc = unzLocateFile(zHandle, "testfile", 2);
 
     if (rc != UNZ_OK) /* Report the file not found */
     {
         Epub.pd->system->logToConsole("file %s not found within archive", "META-INF/container.xml");
         unzClose(zHandle);
-        return -1;
+        //return -1;
     }
     else
     {
@@ -94,7 +99,7 @@ void readStuff()
         {
             Epub.pd->system->logToConsole("Error opening file = %d\n", rc);
             unzClose(zHandle);
-            return -1;
+            //return -1;
         }
         Epub.pd->system->logToConsole("File located within archive.\n");
         rc = 1;
@@ -109,7 +114,7 @@ void readStuff()
                 i += rc;
                 if (rc > 0)
                 {
-                    printf("%s", szTemp);
+                    Epub.pd->system->logToConsole("%s", szTemp);
                 }
             }
             else
@@ -127,4 +132,5 @@ void readStuff()
 void InitEpub(PlaydateAPI *pd)
 {
     Epub.pd = pd;
+    pd->system->logToConsole("initing");
 };

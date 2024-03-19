@@ -25,8 +25,8 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 set(CMAKE_XCODE_GENERATE_SCHEME TRUE)
 
 # Game Name Customization
-set(PLAYDATE_GAME_NAME hello_world)
-set(PLAYDATE_GAME_DEVICE hello_world_DEVICE)
+set(PLAYDATE_GAME_NAME epubdate)
+set(PLAYDATE_GAME_DEVICE epub_date_DEVICE)
 
 project(${PLAYDATE_GAME_NAME} C ASM)
 
@@ -40,8 +40,14 @@ file(GLOB EPUB_GLOB
      "src/epub/*.h"
 )
 
+file(GLOB UZ_GLOB
+     "src/uz/*.c"
+     "src/uz/*.h"
+)
+
 include_directories("src/unzip")
 include_directories("src/epub")
+include_directories("src/uz")
 
 if (TOOLCHAIN STREQUAL "armgcc")
 	add_executable(${PLAYDATE_GAME_DEVICE} src/main.c ${UNZIP_GLOB} ${EPUB_GLOB})

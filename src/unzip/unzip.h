@@ -1,5 +1,49 @@
+/* unzip.h -- IO for uncompress .zip files using zlib 
+   Version 0.15 beta, Mar 19th, 1998,
+
+   Copyright (C) 1998 Gilles Vollant
+
+   This unzip package allow extract file from .ZIP file, compatible with PKZip 2.04g
+     WinZip, InfoZip tools and compatible.
+   Encryption and multi volume ZipFile (span) are not supported.
+   Old compressions used by old PKZip 1.x are not supported
+
+   THIS IS AN ALPHA VERSION. AT THIS STAGE OF DEVELOPPEMENT, SOMES API OR STRUCTURE
+   CAN CHANGE IN FUTURE VERSION !!
+   I WAIT FEEDBACK at mail info@winimage.com
+   Visit also http://www.winimage.com/zLibDll/unzip.htm for evolution
+
+   Condition of use and distribution are the same than zlib :
+
+  This software is provided 'as-is', without any express or implied
+  warranty.  In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+  3. This notice may not be removed or altered from any source distribution.
+
+
+*/
+/* for more info about .ZIP format, see 
+      ftp://ftp.cdrom.com/pub/infozip/doc/appnote-970311-iz.zip
+   PkWare has also a specification at :
+      ftp://ftp.pkware.com/probdesc.zip */
+
 #ifndef _unz_H
 #define _unz_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdint.h>
 
@@ -40,10 +84,18 @@ typedef struct zipFile
     uint8_t ucBuf[UNZ_BUFSIZE]; // local read buffer for compressed data
     uint8_t ucReadInfo[256]; // local info structure
     uint8_t ucInfo[256]; // unzFile structure
-    uint8_t ucFlate[32768+7168]; // inflate buffers
+    //uint8_t ucFlate[32768+7168]; // inflate buffers
 } ZIPFILE;
 
+#if defined(STRICTUNZIP) || defined(STRICTZIPUNZIP)
+/* like the STRICT of WIN32, we define a pointer that cannot be converted
+    from (void*) without cast */
+typedef struct TagunzFile__ { int unused; } unzFile__; 
+typedef unzFile__ *unzFile;
+#else
 typedef voidp unzFile;
+#endif
+
 
 #define UNZ_OK                                  (0)
 #define UNZ_END_OF_LIST_OF_FILE (-100)
@@ -110,7 +162,7 @@ extern int ZEXPORT unzStringFileNameCompare OF ((const char* fileName1,
 */
 
 
-extern unzFile ZEXPORT unzOpen OF((const char *path, ZIPFILE *pzf, ZIP_OPEN_CALLBACK *pfnOpen, ZIP_READ_CALLBACK *pfnRead, ZIP_SEEK_CALLBACK *pfnSeek, ZIP_CLOSE_CALLBACK *pfnClose));
+extern unzFile ZEXPORT unzOpen OF((const char *path, uint8_t *pData, uint32_t u32DataSize, ZIPFILE *pzf, ZIP_OPEN_CALLBACK *pfnOpen, ZIP_READ_CALLBACK *pfnRead, ZIP_SEEK_CALLBACK *pfnSeek, ZIP_CLOSE_CALLBACK *pfnClose));
 /*
   Open a Zip file. path contain the full pathname (by example,
      on a Windows NT computer "c:\\zlib\\zlib111.zip" or on an Unix computer
@@ -254,5 +306,8 @@ extern int ZEXPORT unzGetLocalExtrafield OF((unzFile file,
 	the error code
 */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _unz_H */
